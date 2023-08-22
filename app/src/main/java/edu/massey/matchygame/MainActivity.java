@@ -10,8 +10,8 @@ import edu.massey.matchygame.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding mainBinding;
-    // index of last button clicked
-    private int lastButtonIndex = -1;
+    // last button clicked
+    private Button lastButton = null;
     // array of buttons set using button ids
     private Button[] buttons;
     // keep track of how many pairs matched
@@ -47,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < buttons.length; i++) {
                 buttons[i].setText("");
                 buttons[i].setTag(R.string.bValue, "");
-                buttons[i].setTag(R.integer.bIndex, i);
         }
     }
 
@@ -69,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private void initApp() {
         // initialize fields
         score = 0;
-        lastButtonIndex = -1;
+        lastButton = null;
         numMatched = 0;
         // clear the buttons' text and values
         clearButtonTextAndValues();
@@ -87,21 +86,21 @@ public class MainActivity extends AppCompatActivity {
         // show the tile's number
         b.setText(value);
         // if first of a pair
-        if (lastButtonIndex == -1) {
-            // set current tile as last index
-            lastButtonIndex = (int) b.getTag(R.integer.bIndex);
+        if (lastButton == null) {
+            // set current tile as last button
+            lastButton = b;
         }
         // otherwise, it's part of a pair
         else {
             // if a match is found
-            if (buttons[lastButtonIndex].getText().equals(value)) {
+            if (lastButton.getText().equals(value)) {
                 numMatched++;
                 score+=10;
-                lastButtonIndex = -1;
+                lastButton = null;
             } else {
-                buttons[lastButtonIndex].setText("");
+                lastButton.setText("");
                 // set current tile as last index
-                lastButtonIndex = (int) b.getTag(R.integer.bIndex);
+                lastButton = b;
             }
         }
         showScore();
