@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="false"
     tools:context=".MainActivity">
 
 
@@ -49,6 +50,7 @@
         android:padding="10dp"
         app:constraint_referenced_ids="button_1_1,button_1_2,button_1_3,button_1_4,button_2_1,button_2_2,button_2_3,button_2_4,button_3_1,button_3_2,button_3_3,button_3_4,button_4_1,button_4_2,button_4_3,button_4_4"
         app:flow_horizontalGap="5dp"
+        app:flow_verticalGap="5dp"
         app:flow_horizontalStyle="spread"
         app:flow_maxElementsWrap="4"
         app:flow_verticalStyle="spread"
@@ -60,132 +62,113 @@
         app:layout_constraintTop_toBottomOf="@id/topFlow"
         app:layout_constraintVertical_bias="1.0" />
 
-    <Button
+    <ImageView
         android:id="@+id/button_1_1"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
+        android:background="#669933"
         />
 
-    <Button
+    <ImageView
         android:id="@+id/button_1_2"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
+        android:background="#669933"
         />
 
-    <Button
+    <ImageView
         android:id="@+id/button_1_3"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
+        android:background="#669933"
         />
 
-    <Button
+    <ImageView
         android:id="@+id/button_1_4"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
+        android:background="#669933"
         />
 
-    <Button
+    <ImageView
         android:id="@+id/button_2_1"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
-        />
+        android:background="#669933" />
 
-    <Button
+    <ImageView
         android:id="@+id/button_2_2"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
-        />
+        android:background="#669933" />
 
-    <Button
+    <ImageView
         android:id="@+id/button_2_3"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
-        />
+        android:background="#669933" />
 
-    <Button
+    <ImageView
         android:id="@+id/button_2_4"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
+        android:background="#669933"
         />
 
-    <Button
+    <ImageView
         android:id="@+id/button_3_1"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
+        android:background="#669933"
         />
 
-    <Button
+    <ImageView
         android:id="@+id/button_3_2"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
+        android:background="#669933"
         />
 
-    <Button
+    <ImageView
         android:id="@+id/button_3_3"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
+        android:background="#669933"
         />
 
-    <Button
+    <ImageView
         android:id="@+id/button_3_4"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
+        android:background="#669933"
         />
 
-    <Button
+    <ImageView
         android:id="@+id/button_4_1"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
+        android:background="#669933"
         />
 
-    <Button
+    <ImageView
         android:id="@+id/button_4_2"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
+        android:background="#669933"
         />
 
-    <Button
+    <ImageView
         android:id="@+id/button_4_3"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
+        android:background="#669933"
         />
 
-    <Button
+    <ImageView
         android:id="@+id/button_4_4"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:cornerRadius="0dp"
-        android:textSize="32sp"
+        android:background="#669933"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
