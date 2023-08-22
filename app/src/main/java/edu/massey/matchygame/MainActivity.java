@@ -1,14 +1,21 @@
 package edu.massey.matchygame;
 
-import android.graphics.Interpolator;
+import android.app.Dialog;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.BounceInterpolator;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.Objects;
 
 import edu.massey.matchygame.databinding.ActivityMainBinding;
 
@@ -23,12 +30,15 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TILE_DRAWABLE_STATE_KEY = "tileDrawableState";
     ActivityMainBinding mainBinding;
+
+    MenuItem scoreItem;
+
     // last tile clicked
     private ImageView lastTile = null;
     // array of tiles set using view binding
     private ImageView[] tiles;
     // array of drawable ids
-    private int[] drawables = {
+    private final int[] drawables = {
             R.drawable.baseline_account_circle_24,
             R.drawable.baseline_auto_awesome_24,
             R.drawable.baseline_bluetooth_24,
@@ -58,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mainBinding.getRoot());
+        setSupportActionBar(mainBinding.toolbar);
         initTiles();
         // call restore state after initializing the app
         if (savedInstanceState != null) {
@@ -65,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             initApp();
         }
-        mainBinding.restartButton.setOnClickListener(v -> initApp());
     }
 
     private void restoreState(Bundle inState) {
@@ -203,6 +213,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // to make dialog not disappear during a rotation, need to create a new class
+    // that extends from DialogFragment
+    public static class SureDialog extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            MainActivity activity=(MainActivity)getActivity();
+            return new AlertDialog.Builder(Objects.requireNonNull(activity))
+                    .setMessage(R.string.sure)
+                    .setPositiveButton("Yes", (di, i) -> activity.initApp())
+                    .setNegativeButton("No", null)
+                    .create();
+        }
+    }
+
     // function called when the activity needs to maintain state
     // two situations where this should happen
     // 1. user temp navigates away from activity (e.g. receives call)
@@ -228,5 +252,40 @@ public class MainActivity extends AppCompatActivity {
         outState.putBooleanArray(TILE_TURNED_STATE_KEY, tileTurnedState);
         outState.putIntArray(TILE_DRAWABLE_STATE_KEY, tileDrawableState);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.actions, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_restart) {
+
+            // more advanced dialog that survives rotations
+
+            new SureDialog().show(getSupportFragmentManager(), null);
+
+            // simple dialog that doesn't survive rotations
+
+//            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+//            dialog.setTitle(R.string.restart);
+//            dialog.setMessage(R.string.sure);
+//            dialog.setPositiveButton(android.R.string.yes, (a1, a2) -> initApp());
+//            dialog.setNegativeButton(android.R.string.no, null);
+//            dialog.create().show();
+
+            // simple init app - no dialog
+
+//            initApp();
+            return true;
+        }
+        if (item.getItemId() == R.id.action_help) {
+//            Toast.makeText(this, "Help coming soon!", Toast.LENGTH_SHORT).show();
+            Snackbar.make(mainBinding.getRoot(), "Help coming soon!", Snackbar.LENGTH_LONG).show();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -3,5 +3,8 @@
     <string name="completed">Completed:</string>
     <string name="score">Score:</string>
     <string name="bValue" />
+    <string name="restart">Restart</string>
+    <string name="help_text">Help</string>
+    <string name="sure">Are you sure?</string>
 
 </resources>
