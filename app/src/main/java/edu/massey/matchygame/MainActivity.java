@@ -34,11 +34,13 @@ public class MainActivity extends AppCompatActivity {
         mainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mainBinding.getRoot());
         initButtons();
-        initApp();
-        mainBinding.restartButton.setOnClickListener(v -> initApp());
+        // call restore state after initializing the app
         if (savedInstanceState != null) {
             restoreState(savedInstanceState);
+        } else {
+            initApp();
         }
+        mainBinding.restartButton.setOnClickListener(v -> initApp());
     }
 
     private void restoreState(Bundle inState) {
