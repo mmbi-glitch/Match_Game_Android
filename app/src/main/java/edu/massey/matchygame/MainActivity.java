@@ -1,5 +1,6 @@
 package edu.massey.matchygame;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -19,6 +20,12 @@ public class MainActivity extends AppCompatActivity {
     // keep track of score
     private int score = 0;
 
+    // keys for storing state
+    private static final String NUM_MATCHED_KEY = "numMatched";
+    private static final String SCORE_KEY = "score";
+    private static final String LAST_INDEX_KEY = "lastIndex";
+    private static final String BUTTON_STATE_KEY = "buttonState";
+
 
 
     @Override
@@ -29,7 +36,26 @@ public class MainActivity extends AppCompatActivity {
         initButtons();
         initApp();
         mainBinding.restartButton.setOnClickListener(v -> initApp());
+        if (savedInstanceState != null) {
+            restoreState(savedInstanceState);
+        }
     }
+
+    private void restoreState(Bundle inState) {
+        // restore all the values using the saved bundle
+        // don't forget to include default values
+        numMatched = inState.getInt(NUM_MATCHED_KEY,0);
+        score = inState.getInt(SCORE_KEY,0);
+        int lastIndex = inState.getInt(LAST_INDEX_KEY,-1);
+        String[] buttonState = inState.getStringArray(BUTTON_STATE_KEY);
+        for(int i = 0; i < 16; i++) {
+            buttons[i].setFreezesText(true);
+            buttons[i].setTag(R.string.bValue, buttonState[i]);
+        }
+        if (lastIndex!=-1) lastButton = buttons[lastIndex];
+        else lastButton = null;
+    }
+
 
     private void initButtons() {
         buttons = new Button[]{
@@ -39,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
                 mainBinding.button41, mainBinding.button42, mainBinding.button43, mainBinding.button44
         };
         for (int i = 0; i < 16; i++) {
+            buttons[i].setFreezesText(true);
             buttons[i].setOnClickListener(view -> buttonClick((Button) view));
         }
     }
@@ -115,4 +142,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // function called when the activity needs to maintain state
+    // two situations where this should happen
+    // 1. user temp navigates away from activity (e.g. receives call)
+    // 2. config change (e.g. phone is rotated)
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        // save all necessary state using key-value pairs
+        outState.putInt(NUM_MATCHED_KEY, numMatched);
+        outState.putInt(SCORE_KEY, score);
+        int lastIndex = -1;
+        // need to store button state as a string array
+        String[] buttonState = new String[16];
+        for (int i = 0; i < buttons.length; i++) {
+            buttonState[i] = (String) buttons[i].getTag(R.string.bValue);
+            if (lastButton == buttons[i]) {
+                lastIndex = i;
+            }
+        }
+        outState.putInt(LAST_INDEX_KEY, lastIndex);
+        outState.putStringArray(BUTTON_STATE_KEY, buttonState);
+        super.onSaveInstanceState(outState);
+    }
 }
