@@ -31,8 +31,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String TILE_DRAWABLE_STATE_KEY = "tileDrawableState";
     ActivityMainBinding mainBinding;
 
-    MenuItem scoreItem;
-
     // last tile clicked
     private ImageView lastTile = null;
     // array of tiles set using view binding
