@@ -77,17 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
     // ------------------ inner classes ---------------------------- //
 
-    // inner class for storing tileState
-//    public class TileState {
-//        public int resId;
-//        public boolean turned;
-//        TileState() {}
-//        TileState(int r, boolean t) {
-//            resId = r;
-//            turned = t;
-//        }
-//    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
