@@ -3,8 +3,10 @@ package edu.massey.matchygame;
 import android.animation.TimeInterpolator;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -74,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
     private int numMatched = 0;
     // keep track of score
     private int score = 0;
+    // gesture detector
+    private ScaleGestureDetector scaleGestureDetector;
 
     // ------------------ inner classes ---------------------------- //
 
@@ -92,6 +96,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // function called when the activity needs to maintain state
+    // two situations where this should happen
+    // 1. user temp navigates away from activity (e.g. receives call)
+    // 2. config change (e.g. phone is rotated)
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        // save all necessary state using key-value pairs
+        outState.putInt(NUM_MATCHED_KEY, numMatched);
+        outState.putInt(SCORE_KEY, score);
+        outState.putInt(LAST_INDEX_KEY, lastTileIndex);
+        outState.putBooleanArray(TILE_TURNED_STATE_KEY, tileTurned);
+        outState.putIntArray(TILE_VALUE_STATE_KEY, tileValue);
+        super.onSaveInstanceState(outState);
+    }
+
     private void restoreState(Bundle inState) {
         // restore all the values using the saved bundle
         // don't forget to include default values
@@ -102,14 +121,13 @@ public class MainActivity extends AppCompatActivity {
         tileValue = inState.getIntArray(TILE_VALUE_STATE_KEY);
     }
 
+    // ------------------ overridden methods -------------------- //
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.actions, menu);
         return super.onCreateOptionsMenu(menu);
     }
-
-
-    // ------------------ overridden methods -------------------- //
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -139,21 +157,6 @@ public class MainActivity extends AppCompatActivity {
         showScore();
     }
 
-    // function called when the activity needs to maintain state
-    // two situations where this should happen
-    // 1. user temp navigates away from activity (e.g. receives call)
-    // 2. config change (e.g. phone is rotated)
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        // save all necessary state using key-value pairs
-        outState.putInt(NUM_MATCHED_KEY, numMatched);
-        outState.putInt(SCORE_KEY, score);
-        outState.putInt(LAST_INDEX_KEY, lastTileIndex);
-        outState.putBooleanArray(TILE_TURNED_STATE_KEY, tileTurned);
-        outState.putIntArray(TILE_VALUE_STATE_KEY, tileValue);
-        super.onSaveInstanceState(outState);
-    }
-
     private void clearTileState() {
         for (int i = 0; i < NUM_TILES; i++) {
             tileValue[i] = -1;
@@ -177,17 +180,60 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // ---------------------- helper methods ---------------------- //
-
     private void initTiles() {
+        // set the layout for the grid view
         tileGrid = mainBinding.gridView;
+        // set num of columns
         tileGrid.setNumColumns(NUM_COLS);
+        // create a new adapter and set it to tile grid's adapter
         tileAdapter = new TileAdapter();
         tileGrid.setAdapter(tileAdapter);
+        // set up an on-item-click listener for the tile grid
         tileGrid.setOnItemClickListener((parent, view, position, id) -> tileClick(position));
+        //
+        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.OnScaleGestureListener() {
+            private float numCols = NUM_COLS;
+
+            @Override
+            public boolean onScale(@NonNull ScaleGestureDetector detector) {
+                // divide num of columns by the scale factor
+                numCols = numCols / detector.getScaleFactor();
+                // clamp to a min of 1 and max of 8 columns
+                if (numCols < 1) numCols = 1;
+                if (numCols > 8) numCols = 8;
+                // reset num of columns in grid view
+                tileGrid.setNumColumns((int) numCols);
+                // recalculate the tile heights
+                for (int i = 0; i < tileGrid.getChildCount(); i++) {
+                    if (tileGrid.getChildAt(i) != null) {
+                        tileGrid.getChildAt(i).setMinimumHeight(((tileGrid.getWidth() / (int) (numCols))));
+                    }
+                }
+                // make sure the grid is redrawn
+                tileGrid.invalidate();
+                return true;
+            }
+
+            // not used
+            @Override
+            public boolean onScaleBegin(@NonNull ScaleGestureDetector detector) {
+                return true;
+            }
+
+            // not used
+            @Override
+            public void onScaleEnd(@NonNull ScaleGestureDetector detector) {}
+        });
+
+        tileGrid.setOnTouchListener((view, event) -> {
+            Log.i(TAG, "onTouch:" + event.getAction() + "," + event.getX() + "," + event.getY());
+            scaleGestureDetector.onTouchEvent(event);
+            return false;
+        });
     }
 
     private void tileClick(int position) {
+        Log.i(TAG, "Tile Pos = " + position);
         // if tile is already turned, do nothing
         if (tileTurned[position]) return;
         // if it's the first of a pair
@@ -206,14 +252,18 @@ public class MainActivity extends AppCompatActivity {
             }
             // else, if doesn't match
             else {
+                if (score > 0) {
+                    score -= 2;
+                }
                 // turn the current one around to show its drawable
                 // for this, you may want to use turnBack = true,
-                // this means if the drawable is off the screen
+                // this makes sure that if it becomes offscreen
                 // while animating, it will flip back
                 showTile(position, tileValue[position], true, 0);
                 // and turn the previous one back - hide its drawable
                 showTile(lastTileIndex, -1, false, 0);
-                // this
+                // change the index back to -1 - no previous tiles
+                // we only want to show both if they are matching
                 lastTileIndex = -1;
             }
         }
@@ -229,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
         View layout = tileGrid.getChildAt(position - tileGrid.getFirstVisiblePosition());
         // if the view is null --- i.e. off the screen
         if (layout == null) {
-            // make sure it's turned back
+            // make sure it's turned back because it will be turned back anyway
             tileTurned[position] = false;
             return;
         }
@@ -278,6 +328,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // ---------------------- helper methods ---------------------- //
+
     private void showScore() {
         String scoreText = getText(R.string.app_name) + " ";
         if (numMatched == NUM_TILES / 2) {
@@ -307,6 +359,12 @@ public class MainActivity extends AppCompatActivity {
     public class ViewHolder {
         public int position;
         public ImageView image;
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "Pos = " + position + ", Img = " + tileValue[position];
+        }
     }
 
     // inner class for tile adapter
@@ -339,9 +397,15 @@ public class MainActivity extends AppCompatActivity {
                 // create new view holder
                 vh = new ViewHolder();
                 vh.image = tileBinding.tileButton;
+                // make sure the image is set to null;
+                vh.image.setImageDrawable(null);
                 // and set the tag
                 convertView.setTag(vh);
             } else {
+                // e.g. if there are 32 views, view 0 may be recycled for view 28
+                // otherwise, get the tag of the recycled view
+//                Log.i(TAG, "Convert View: " + convertView.getTag());
+//                Log.i(TAG, "Get View Pos: " + position);
                 vh = (ViewHolder) convertView.getTag();
             }
             // set the size of the view to be square
@@ -349,6 +413,7 @@ public class MainActivity extends AppCompatActivity {
             // make sure image view is not rotated
             vh.image.setRotationY(0);
             // if it's turned over, show the icon, otherwise not
+            // needs to be here because tiles will be reinitialized after scale-gesture
             if (tileTurned[position]) vh.image.setImageResource(drawables[tileValue[position]]);
             else vh.image.setImageDrawable(null);
             // set the position
@@ -357,4 +422,5 @@ public class MainActivity extends AppCompatActivity {
             return convertView;
         }
     }
+
 }
